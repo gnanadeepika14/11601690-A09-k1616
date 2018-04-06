@@ -1,0 +1,101 @@
+#include<iostream>
+#include<conio.h>
+using namespace std;
+struct processes
+{
+	int AT,BT,pID,WT;
+	bool exe;
+}
+pp[10];
+void sorted(processes *Ready_queue[10],int n)
+{
+	for(int i=0;i<n-1;i++)
+	{
+		for(int j=0;j<n-i-1;j++)
+		{
+			if(Ready_queue[j]->BT>Ready_queue[j+1]->BT)
+			{
+				processes *temp=Ready_queue[j];
+				Ready_queue[j]=Ready_queue[j+1];
+				Ready_queue[j+1]=temp;
+			}
+		}
+	}
+}
+int main()
+{
+	int n,clk;
+	cout<<"How many no of processes : ";
+	cin>>n;
+	for(int i=0;i<n;i++)
+	{
+		cout<<"Arrival time for process "<<i+1<<":\n";
+		cin>>pp[i].AT;
+		pp[i].pID=i+1;
+		pp[i].BT=pp[i].AT*2;
+		pp[i].exe=false;
+		pp[i].WT=0;
+	}
+	cout<<"Processes details  are: \n\n";
+	cout<<"ID\tArrival Time\tBurst Time\n";
+	for(int i=0;i<n;i++)
+	{
+		cout<<pp[i].pID<<"\t"<<pp[i].AT<<"\t\t"<<pp[i].BT;
+		cout<<"\n";
+	}
+
+	processes p1[n],*Ready_queue[n];
+	int Queue_size=0;
+	clk=0;
+	processes *Executes = NULL;
+	while(true)
+	{
+		bool alldone=true;
+		for(int i=0;i<n;i++)
+		{
+			if(pp[i].exe==false)
+			{
+				alldone=false;
+				break;
+			}
+		}	
+		if(alldone)
+			break;
+		for(int i=0;i<n;i++)
+		{
+			if(pp[i].AT==clk && pp[i].exe==false){
+				Ready_queue[Queue_size]=&pp[i];
+				Queue_size++;
+			}
+		}
+		if ( Executes != NULL && Executes->BT + Executes->WT + Executes->AT == clk) {
+			Executes = NULL;
+		}
+		if(Queue_size>0 && Executes == NULL)
+		{
+			sorted(Ready_queue,Queue_size);
+			Ready_queue[Queue_size-1]->exe=true;
+			Executes = Ready_queue[Queue_size-1];
+			cout<<"process\t"<<Ready_queue[Queue_size-1]->pID<<" is executed\n"<<endl;
+			Queue_size--;
+		}
+		for(int j=0;j<Queue_size;j++)
+		{
+			Ready_queue[j]->WT++;
+		}
+		clk++;
+	}
+	int Totaltime=0;
+	float TAT=0;
+	float totalwaiting=0;
+	for(int i=0;i<n;i++)
+	{
+		totalwaiting += pp[i].WT;
+		Totaltime=pp[i].BT+pp[i].WT+pp[i].AT+Totaltime;
+		TAT=(pp[i].BT+pp[i].WT)+TAT;
+	}
+	cout<<"Total Complete Time: \n"<<Totaltime<<endl;
+	cout<<"Total Turn Around Time: \n"<<TAT<<endl;
+	cout<<"Average Turn Around Time: \n"<<(TAT)/n<<endl;
+	cout<<"Average Waiting Time: \n"<<(totalwaiting)/n<<endl;
+}
